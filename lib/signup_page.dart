@@ -37,7 +37,6 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +55,6 @@ class _SignupPageState extends State<SignupPage> {
               ),
               SizedBox(height: 50),
 
-
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
@@ -73,18 +71,19 @@ class _SignupPageState extends State<SignupPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   controller: emailController,
-                  validator: (mail){
-                    if(mail == null) {
+                  validator: (mail) {
+                    if (mail == null) {
                       return "enter valid mail";
-                  }
-                  else{return null;}
+                    } else {
+                      return null;
+                    }
                   },
                   autovalidateMode: AutovalidateMode.always,
                   decoration: InputDecoration(
-                      labelText: "Email",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
+                    labelText: "Email",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
                   ),
                 ),
               ),
@@ -98,7 +97,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   decoration: InputDecoration(
                     labelText: "Password", //
-                    suffix: IconButton(
+                    suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
                           showPassword = !showPassword;
@@ -123,14 +122,16 @@ class _SignupPageState extends State<SignupPage> {
                   obscureText: showPassword,
                   decoration: InputDecoration(
                       labelText: "Confirm Password",
-                      suffix: IconButton(
-                        onPressed: (){
+                      suffixIcon: IconButton(
+                        onPressed: () {
                           setState(() {
-                            showPassword =!showPassword;
+                            showPassword = !showPassword;
                           });
                         },
                         icon: Icon(
-                          showPassword?Icons.visibility:Icons.visibility_off,
+                          showPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                       ),
                       border: OutlineInputBorder(
@@ -180,24 +181,18 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-
-
-   String? validateMail(String mail){
-    if(mail.isEmpty && mail == null){
+  String? validateMail(String mail) {
+    if (mail.isEmpty && mail == null) {
       return "please enter email";
-    }
-    else if(RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(mail)){
+    } else if (RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(mail)) {
       return "please enter valid mail";
     }
-
-   }
-
-
+  }
 
   Future<void> signup() async {
     try {
-      if(!signupKey.currentState!.validate()){
-        return ;
+      if (!signupKey.currentState!.validate()) {
+        return;
       }
 
       setState(() {
