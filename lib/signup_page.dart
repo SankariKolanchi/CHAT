@@ -1,5 +1,4 @@
 import 'package:chatapp/login_page.dart';
-import 'package:chatapp/profile_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,26 +17,49 @@ class _SignupPageState extends State<SignupPage> {
   final auth = FirebaseAuth.instance;
   final firestore = FirebaseFirestore.instance;
   User? user = FirebaseAuth.instance.currentUser;
-  final  signupKey = GlobalKey<FormState>();
+  final signupKey = GlobalKey<FormState>();
 
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController countryController =TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController =TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  bool isLoading = false;
+  bool showPassword = false;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
+        ///this is form and before signup we will validate this form by checking signup key if it is valid then we will proceed else we won't
+        ///got it ?
+        ///ok making it simpler then type again
         child: Form(
           key: signupKey,
           child: Column(
             children: [
               SizedBox(height: 50),
-              Text("Please signup to continue", style: TextStyle(color: Colors.pink,fontSize: 18,fontWeight: FontWeight.bold),),
+              Text(
+                "Please signup to continue",
+                style: TextStyle(
+                    color: Colors.pink,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 50),
-              //name
+
+
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
@@ -46,8 +68,7 @@ class _SignupPageState extends State<SignupPage> {
                       labelText: "Name",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
-                      )
-                  ),
+                      )),
                 ),
               ),
               //email
@@ -55,28 +76,44 @@ class _SignupPageState extends State<SignupPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   controller: emailController,
+                  validator: (mail){
+                    if(mail == null) {
+                      return "enter valid mail";
+                  }
+                  else{return null;}
+                  },
+                  autovalidateMode: AutovalidateMode.always,
                   decoration: InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    )
+                      labelText: "Email",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
                   ),
                 ),
               ),
-
-
-
 
               //password
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
-                  controller: passwordController,
+                  controller: passwordController, //
+                  obscureText: showPassword,
+
                   decoration: InputDecoration(
-                      labelText: "Password",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      )
+                    labelText: "Password", //
+                    suffix: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          showPassword = !showPassword;
+                        });
+                      },
+                      icon: Icon(
+                        showPassword ? Icons.visibility : Icons.visibility_off,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
                   ),
                 ),
               ),
@@ -86,66 +123,118 @@ class _SignupPageState extends State<SignupPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   controller: confirmPasswordController,
+                  obscureText: showPassword,
                   decoration: InputDecoration(
                       labelText: "Confirm Password",
+                      suffix: IconButton(
+                        onPressed: (){
+                          setState(() {
+                            showPassword =!showPassword;
+                          });
+                        },
+                        icon: Icon(
+                          showPassword?Icons.visibility:Icons.visibility_off,
+                        ),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
-                      )
-                  ),
+                      )),
                 ),
               ),
-              SizedBox(height: 50,),
+              SizedBox(
+                height: 50,
+              ),
               SizedBox(
                 height: 50,
                 width: 300,
                 child: ElevatedButton(
-                  onPressed: () {
-                    signup();
-                  },
-                  child :Text("Login", style: TextStyle(fontSize:18,fontWeight: FontWeight.bold),)
-                ),
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            signup();
+                          },
+                    child: Text(
+                      isLoading ? "signing up" : "signup",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    )),
               ),
               SizedBox(
                 height: 50,
               ),
-              Row(children: [
-                Text("Already have an account ?"),
-TextButton(onPressed: (){
-
-  Navigator.push(context,MaterialPageRoute(builder: (context)=> const LoginPage()));
-
-
-}, child: Text("Login")
-)
-              ],),
-
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Already have an account ?"),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LoginPage()));
+                      },
+                      child: Text("Login"))
+                ],
+              ),
             ],
           ),
         ),
       ),
-
     );
   }
 
 
-  Future<void> signup() async{
 
-    UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: emailController.text, password: passwordController.text,);
-    user = userCredential.user;
-    debugPrint(user!.uid);
-    // after signup user will navigate to new screen
-    if(user != null){
-      // after signup we save user data in firestore database
-
-
-
-      await firestore.collection("users").doc(user!.uid).set({
-        "name": nameController.text,
-        "email": emailController.text,
-      });
-
-      Navigator.push(context, MaterialPageRoute(builder: (context)=> const HomePage()));
+   String? validateMail(String mail){
+    if(mail.isEmpty && mail == null){
+      return "please enter email";
+    }
+    else if(RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(mail)){
+      return "please enter valid mail";
     }
 
+   }
+
+
+
+  Future<void> signup() async {
+    try {
+      if(!signupKey.currentState!.validate()){
+        return ;
+      }
+
+
+
+
+      setState(() {
+        isLoading = true;
+      });
+
+
+
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      user = userCredential.user;
+      debugPrint(user!.uid);
+      // after signup user will navigate to new screen
+      if (user != null) {
+        // after signup we save user data in firestore database
+
+        await firestore.collection("users").doc(user!.uid).set({
+          "name": nameController.text,
+          "email": emailController.text,
+        });
+      }
+      setState(() {
+        isLoading = false; //these
+      });
+
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const HomePage()));
+    } on FirebaseAuthException catch (e) {
+      debugPrint(e.message);
+    }
   }
 }

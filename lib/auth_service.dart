@@ -11,7 +11,7 @@ class AuthService extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.userChanges(),
+        stream: FirebaseAuth.instance.userChanges(),//
         builder: (_, user){
       if(user.connectionState == ConnectionState.waiting){
         return CircularProgressIndicator();
@@ -28,6 +28,5 @@ class AuthService extends StatelessWidget {
     });
   }
 }
-
-/// now understand this code or not ?
-///
+// stream is continuous asynchronous fliw of data
+// this data is called snapshot

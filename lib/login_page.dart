@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:chatapp/home_page.dart';
 import 'package:chatapp/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,14 @@ class _LoginPageState extends State<LoginPage> {
   User? user = FirebaseAuth.instance.currentUser;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  bool isLoading = false;
+  bool showPassword =false;
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +61,16 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.all(8.0),
           child: TextFormField(
             controller: passwordController,
+            obscureText: showPassword,
             decoration: InputDecoration(
               labelText: "Password",
+              suffix: IconButton(onPressed: (){
+              setState(() {
+                showPassword =!showPassword;
+              });
+              },
+                icon: Icon(showPassword?Icons.visibility:Icons.visibility_off)//next ch
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
               ),
@@ -72,14 +89,20 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         SizedBox(
+          //
           height: 20,
         ),
         SizedBox(
           height: 50,
           width: 300,
           child: ElevatedButton(
-            onPressed: () {},
-            child: Text("Login"),
+            onPressed: isLoading
+                ? null
+                : () {
+                    /// here you have to call login funcction :D s
+                    login();
+                  },
+            child: Text(isLoading ? "logging" : "Login"),
           ),
         ),
         SizedBox(
@@ -99,17 +122,26 @@ class _LoginPageState extends State<LoginPage> {
         )
       ]),
     ));
-  }
+  } //
 
   Future<void> login() async {
-    UserCredential userCredential = await auth.signInWithEmailAndPassword(
-        email: emailController.text, password: passwordController.text);
-    user = userCredential.user;
-
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+          email: emailController.text, password: passwordController.text);
+      user = userCredential.user;
+      if (user != null) {
+        setState(() {
+          isLoading = false;
+        });
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const HomePage()));
+      }
+    } on FirebaseAuthException catch (e) {
+      debugPrint(e.message);
+    } //
     //after login user will navigate to new screen
-    if (user != null) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const SignupPage()));
-    }
   }
 }

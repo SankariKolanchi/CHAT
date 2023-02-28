@@ -9,7 +9,7 @@ Future<void> main() async{
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key});//
 
   // This widget is the root of your application.
   @override
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.pink,
       ),
-      home: AuthService(),
+      home: const AuthService(), // whether the user is validating or not
     );
   }
 }
