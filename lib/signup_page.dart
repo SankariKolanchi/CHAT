@@ -72,11 +72,7 @@ class _SignupPageState extends State<SignupPage> {
                 child: TextFormField(
                   controller: emailController,
                   validator: (mail) {
-                    if (mail == null) {
-                      return "enter valid mail";
-                    } else {
-                      return null;
-                    }
+
                   },
                   autovalidateMode: AutovalidateMode.always,
                   decoration: InputDecoration(
