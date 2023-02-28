@@ -28,7 +28,7 @@ class _ChatPageState extends State<ChatPage> {
           SizedBox(
             height: 500,
             child: StreamBuilder<QuerySnapshot>(
-                stream: firestore.collection("chats").snapshots(),
+                stream: firestore.collection("chats").doc(widget.snapshot['uid']).collection("messages").snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Text("error");
@@ -80,11 +80,12 @@ class _ChatPageState extends State<ChatPage> {
     if (message.text.isNotEmpty) {
       firestore
           .collection("chats")
-          .doc(widget.snapshot[(uid)])
+          .doc(widget.snapshot['uid'])
           .collection("messages")
           .doc(timeStamp.toString())
           .set({"message": message.text, "time": timeStamp});
       message.clear();
+
     }
   }
 }
