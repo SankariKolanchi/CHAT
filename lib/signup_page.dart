@@ -42,9 +42,6 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        ///this is form and before signup we will validate this form by checking signup key if it is valid then we will proceed else we won't
-        ///got it ?
-        ///ok making it simpler then type again
         child: Form(
           key: signupKey,
           child: Column(
@@ -203,14 +200,9 @@ class _SignupPageState extends State<SignupPage> {
         return ;
       }
 
-
-
-
       setState(() {
         isLoading = true;
       });
-
-
 
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: emailController.text,
@@ -235,6 +227,10 @@ class _SignupPageState extends State<SignupPage> {
           context, MaterialPageRoute(builder: (context) => const HomePage()));
     } on FirebaseAuthException catch (e) {
       debugPrint(e.message);
+      // display snackbar here
+      SnackBar snackBar = SnackBar(content: Text(e.message?? "Something went wrong"));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      }
     }
   }
-}

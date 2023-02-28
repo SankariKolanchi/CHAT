@@ -20,7 +20,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = false;
-  bool showPassword =false;
+  bool showPassword = false;
+
   @override
   void dispose() {
     emailController.dispose();
@@ -31,97 +32,99 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Form(
-      key: loginKey,
-      child: Column(children: [
-        SizedBox(height: 50),
-        Text(
-          "Please signup to continue",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 50),
-        //email
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextFormField(
-            controller: emailController,
-            decoration: InputDecoration(
-              labelText: "Email",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+          key: loginKey,
+          child: Column(children: [
+            SizedBox(height: 50),
+            Text(
+              "Please signup to continue",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-        ),
+            SizedBox(height: 50),
+            //email
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+              ),
+            ),
 
-        //password
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextFormField(
-            controller: passwordController,
-            obscureText: showPassword,
-            decoration: InputDecoration(
-              labelText: "Password",
-              suffix: IconButton(onPressed: (){
-              setState(() {
-                showPassword =!showPassword;
-              });
-              },
-                icon: Icon(showPassword?Icons.visibility:Icons.visibility_off)//next ch
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+            //password
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: passwordController,
+                obscureText: showPassword,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  suffix: IconButton(onPressed: () {
+                    setState(() {
+                      showPassword = !showPassword;
+                    });
+                  },
+                      icon: Icon(showPassword ? Icons.visibility : Icons
+                          .visibility_off) //next ch
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        // forgot password
-        SizedBox(
-          height: 20,
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () {},
-            child: Text("Forgot password"),
-          ),
-        ),
-        SizedBox(
-          //
-          height: 20,
-        ),
-        SizedBox(
-          height: 50,
-          width: 300,
-          child: ElevatedButton(
-            onPressed: isLoading
-                ? null
-                : () {
-                    /// here you have to call login funcction :D s
-                    login();
-                  },
-            child: Text(isLoading ? "logging" : "Login"),
-          ),
-        ),
-        SizedBox(
-          height: 50,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Don't have an account ?"),
-            TextButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SignupPage()));
+            // forgot password
+            SizedBox(
+              height: 20,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {},
+                child: Text("Forgot password"),
+              ),
+            ),
+            SizedBox(
+              //
+              height: 20,
+            ),
+            SizedBox(
+              height: 50,
+              width: 300,
+              child: ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () {
+                  /// here you have to call login funcction :D s
+                  login();
                 },
-                child: Text("SignUp"))
-          ],
-        )
-      ]),
-    ));
+                child: Text(isLoading ? "logging" : "Login"),
+              ),
+            ),
+            SizedBox(
+              height: 50,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Don't have an account ?"),
+                TextButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(
+                              builder: (context) => SignupPage()));
+                    },
+                    child: Text("SignUp"))
+              ],
+            )
+          ]),
+        ));
   } //
 
   Future<void> login() async {
@@ -141,7 +144,9 @@ class _LoginPageState extends State<LoginPage> {
       }
     } on FirebaseAuthException catch (e) {
       debugPrint(e.message);
-    } //
-    //after login user will navigate to new screen
+      SnackBar snackBar = SnackBar(content: (Text(e.message ?? "OPPs")));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      //after login user will navigate to new screen
+    }
   }
 }
