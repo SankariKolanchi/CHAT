@@ -16,6 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   // initialize firestore
   final firestore = FirebaseFirestore.instance;
+  final uid = FirebaseAuth.instance.currentUser?.uid;
   
   
   @override
@@ -40,7 +41,10 @@ class _HomePageState extends State<HomePage> {
               return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (_, index){
-                    return ListTile(
+                    return
+            uid == snapshot.data!.docs[index]['uid']?
+                SizedBox():
+                      ListTile(
                       onTap: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatPage(snapshot: snapshot.data!.docs[index]
                         )));
@@ -64,6 +68,7 @@ class _HomePageState extends State<HomePage> {
             else{
               return Text("no data found");
             }
+
 
 
 

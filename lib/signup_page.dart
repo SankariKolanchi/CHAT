@@ -206,6 +206,7 @@ class _SignupPageState extends State<SignupPage> {
         // after signup we save user data in firestore database
 
         await firestore.collection("users").doc(user!.uid).set({
+          "uid": user!.uid,
           "name": nameController.text,
           "email": emailController.text,
         });

@@ -6,6 +6,10 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Container(
+      color: Colors.yellow,
+      child: Image.asset('assets/images/flutter.png'),
+
+    );
   }
 }
