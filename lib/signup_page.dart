@@ -75,6 +75,7 @@ class _SignupPageState extends State<SignupPage> {
                 ),
               ),
               //email
+
               Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25,),
@@ -98,7 +99,8 @@ class _SignupPageState extends State<SignupPage> {
                 child: TextFormField(
                   controller: passwordController, //
                   obscureText: showPassword,
-
+                  validator: validatePassword,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     labelText: "Password", //
                     suffixIcon: IconButton(
@@ -125,6 +127,8 @@ class _SignupPageState extends State<SignupPage> {
                 child: TextFormField(
                   controller: confirmPasswordController,
                   obscureText: showPassword,
+                  validator: validateConfirmPassword,
+                  autovalidateMode:AutovalidateMode.onUserInteraction ,
                   decoration: InputDecoration(
                       labelText: "Confirm Password",
                       suffixIcon: IconButton(
@@ -197,11 +201,33 @@ class _SignupPageState extends State<SignupPage> {
   String? validateMail(String? mail) {
     if (mail == null || mail.isEmpty) {
       return "enter email";
-    } else if (RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(mail)) {
+    } else if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(mail)) {
       return "enter valid mail";
     }
     else{return null;}
   }
+
+  String? validatePassword(String? password) {
+    if (password == null || password.isEmpty) {
+      return "Enter password";
+    } else if (password.length < 6)
+    {
+      return "password should be greater than 6";
+    }
+    else{return null;}
+  }
+
+
+  String?validateConfirmPassword(String? confirmPassword){
+    if(confirmPassword ==null ||confirmPassword.isEmpty){
+      return "Enter ConfirmPassword";
+    }else if(confirmPassword!=passwordController.text)
+    {
+      return "password and confirm password must be same";
+    }
+    else {return  null;}
+  }
+
 
   void validateForm() {
     signupKey.currentState?.save();
