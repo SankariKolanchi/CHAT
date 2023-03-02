@@ -12,69 +12,102 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final firestore = FirebaseFirestore.instance;
-  final uid = FirebaseAuth.instance.currentUser!.uid;//
-  final message = TextEditingController();
-  
+  final uid = FirebaseAuth.instance.currentUser!.uid; //
+  final messageController = TextEditingController();
+
+  late bool isTyping;
   late String chatId;
-  
+
   @override
   void initState() {
     chatId = getChatId();
     super.initState();
   }
-  
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            widget.snapshot['name']
-        ),
+        title: Text(widget.snapshot['name']),
       ),
       body: Stack(
         children: [
-          SizedBox(
-            height: 500,
-            child: StreamBuilder<QuerySnapshot>(
-                stream: firestore.collection("chats").doc(chatId).collection("messages").orderBy('time',descending: true).snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text("error");
-                  } else {
-                    return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: snapshot.data!.docs.length,
-                        // physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                              width: 100,
-                              padding: EdgeInsets.all(12),
-                              margin: EdgeInsets.all(12),
-                              color: Colors.teal[50],
-                              child:
-                                  Text(snapshot.data!.docs[index]['message']));
-                        }
-                        //
+          StreamBuilder<QuerySnapshot>(
+              stream: firestore
+                  .collection("chats")
+                  .doc(chatId)
+                  .collection("messages")
+                  .orderBy('time', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text("error");
+                } else if (snapshot.hasData) {
+                  return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        bool isMe = snapshot.data!.docs[index]['uid'] == uid;
+                        return Align(
+                          alignment: isMe
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width / 1.5,
+                            padding: EdgeInsets.all(12),
+                            margin: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color:
+                                  isMe ? Colors.green[100] : Colors.pink[100],
+                              borderRadius: BorderRadius.horizontal(
+                                left: Radius.circular(isMe ? 20 : 0),
+                                right: Radius.circular(isMe ? 0 : 20.0),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(snapshot.data!.docs[index]['message']),
+                              ],
+                            ),
+                          ),
                         );
-                  }
-                }),
-          ),
+                      });
+                } else {
+                  return Text("No message found");
+                }
+              }),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                controller: message,
-                decoration: InputDecoration(
-                    fillColor: Colors.teal,
-                    filled: true,
-                    hintText: "Type something",
-                    suffixIcon: FloatingActionButton(
-                        onPressed: () {
-                          sendMessage();
-                        },
-                        child: Icon(Icons.send))),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 80,
+                    child: TextFormField(
+                      controller: messageController,
+                      minLines: 1,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        filled: true,
+                        hintText: "Type something",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(50)),
+                      ),
+                    ),
+                  ),
+                  FloatingActionButton(
+                    onPressed: () {
+                      sendMessage();
+                    },
+                    child: Icon(Icons.send),
+                  ),
+                ],
               ),
             ),
           )
@@ -82,8 +115,8 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
-  
-  String getChatId(){
+
+  String getChatId() {
     if (uid.hashCode <= widget.snapshot['uid'].hashCode) {
       return '$uid-${widget.snapshot['uid']}';
     } else {
@@ -94,15 +127,18 @@ class _ChatPageState extends State<ChatPage> {
   void sendMessage() {
     final timeStamp = DateTime.now().millisecondsSinceEpoch;
 
-    if (message.text.isNotEmpty) {
+    if (messageController.text.isNotEmpty) {
       firestore
           .collection("chats")
           .doc(chatId)
           .collection("messages")
           .doc(timeStamp.toString())
-          .set({"message": message.text.trim(), "time": timeStamp});
-      message.clear();
-
+          .set({
+        "uid": uid,
+        "message": messageController.text.trim(),
+        "time": timeStamp,
+      });
+      messageController.clear();
     }
   }
 }
