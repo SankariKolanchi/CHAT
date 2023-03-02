@@ -55,12 +55,12 @@ class _ChatPageState extends State<ChatPage> {
                               ? Alignment.centerRight
                               : Alignment.centerLeft,
                           child: Container(
-                            width: MediaQuery.of(context).size.width / 1.5,
+                         /*   width: MediaQuery.of(context).size.width / 1.5,*/
                             padding: EdgeInsets.all(12),
                             margin: EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               color:
-                                  isMe ? Colors.green[100] : Colors.pink[100],
+                                  isMe ? Colors.grey[100] : Colors.purple[100],
                               borderRadius: BorderRadius.horizontal(
                                 left: Radius.circular(isMe ? 20 : 0),
                                 right: Radius.circular(isMe ? 0 : 20.0),

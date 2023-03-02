@@ -250,7 +250,8 @@ class _SignupPageState extends State<SignupPage> {
       );
       User? user = userCredential.user;
       //save user data to firestore database
-      debugPrint(user!.uid);
+      savesaData(user!);
+      debugPrint(user.uid);
       // after signup user will navigate to new screen
 
       setState(() {
@@ -269,7 +270,7 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-  Future<void> saveData(User user)async{
+  Future<void> savesaData(User user)async{
     await firestore.collection("users").doc(user.uid).set({
       "uid": user.uid,
       "name": nameController.text,

@@ -18,72 +18,73 @@ class _HomePageState extends State<HomePage> {
   final firestore = FirebaseFirestore.instance;
   final uid = FirebaseAuth.instance.currentUser?.uid;
 
-
-
-
-  
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Home"),
       ),
-
-
-      
       body: StreamBuilder(
           stream: firestore.collection('users').snapshots(),
-          builder: (_, snapshot){
-            if(snapshot.connectionState == ConnectionState.waiting){
-              return Center(child: CircularProgressIndicator(),);
-            }
-            else if(snapshot.hasError){
+          builder: (_, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
               return Text("Error");
-            }
-            else if(snapshot.data != null){
+            } else if (snapshot.data != null) {
               return ListView.builder(
+                shrinkWrap: true,
                   itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (_, index){
+                  itemBuilder: (_, index) {
                     return
-            uid == snapshot.data!.docs[index]['uid']?
-                SizedBox():
-                      ListTile(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatPage(snapshot: snapshot.data!.docs[index]
-                        )));
+                        // uid == snapshot.data!.docs[index]['uid']?
+                        //     SizedBox():
+                        ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChatPage(
+                                    snapshot: snapshot.data!.docs[index])));
                       },
                       leading: CircleAvatar(
                         child: InkWell(
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=> ProfilePage(snapshot: snapshot.data!.docs[index]
-                              )));
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ProfilePage(
+                                          snapshot:
+                                              snapshot.data!.docs[index])));
                             },
-                            child: Text((snapshot.data!.docs[index]['name'][0]).toString().toUpperCase())),
+                            child: Text((snapshot.data!.docs[index]['name'][0])
+                                .toString()
+                                .toUpperCase())),
                       ),
-                      title: Text(snapshot.data!.docs[index]['name']
-                      ),
-                        subtitle: Text(snapshot.data!.docs[index]['email']),
+                      title: Text(snapshot.data!.docs[index]['name']),
+                      subtitle: Text(snapshot.data!.docs[index]['email']),
                     );
                   });
-            }
-            else{
+            } else {
               return Text("no data found");
             }
-      }),
-      
-      floatingActionButton: FloatingActionButton(onPressed: (){
-        logout();
-      }, child: Icon(Icons.logout),),
+          }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          logout();
+        },
+        child: Icon(Icons.logout),
+      ),
     );
   }
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>const SignupPage()));
-
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const SignupPage()));
   }
-
 
   /*Future<void> getDeviceInfo() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -95,8 +96,3 @@ class _HomePageState extends State<HomePage> {
   }
 */
 }
-
-
-
-
-

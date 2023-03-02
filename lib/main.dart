@@ -23,4 +23,5 @@ class MyApp extends StatelessWidget {
       home: const AuthService(), // whether the user is validating or not
     );
   }
+
 }
