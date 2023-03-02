@@ -32,10 +32,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Form(
             key: loginKey,
             child: Column(children: [
               SizedBox(height: 50),
+
               Text(
                 "Please signup to continue",
                 style: TextStyle(
@@ -47,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
 
               Padding(padding: EdgeInsets.all(12.0),
               child: Image.asset('assets/login.jpg',
-              height: 350,
+              height: 250,
               ),
               ),
               //email
@@ -160,6 +162,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> login() async {
+    if(!loginKey.currentState!.validate()){return;}
+
+
     setState(() {
       isLoading = true;
     });

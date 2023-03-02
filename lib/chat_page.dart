@@ -12,8 +12,17 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final firestore = FirebaseFirestore.instance;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
+  final uid = FirebaseAuth.instance.currentUser!.uid;//
   final message = TextEditingController();
+  
+  late String chatId;
+  
+  @override
+  void initState() {
+    chatId = getChatId();
+    super.initState();
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +37,7 @@ class _ChatPageState extends State<ChatPage> {
           SizedBox(
             height: 500,
             child: StreamBuilder<QuerySnapshot>(
-                stream: firestore.collection("chats").doc(widget.snapshot['uid']).collection("messages").snapshots(),
+                stream: firestore.collection("chats").doc(chatId).collection("messages").orderBy('time',descending: true).snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Text("error");
@@ -73,6 +82,14 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
+  
+  String getChatId(){
+    if (uid.hashCode <= widget.snapshot['uid'].hashCode) {
+      return '$uid-${widget.snapshot['uid']}';
+    } else {
+      return '${widget.snapshot['uid']}-$uid';
+    }
+  }
 
   void sendMessage() {
     final timeStamp = DateTime.now().millisecondsSinceEpoch;
@@ -80,10 +97,10 @@ class _ChatPageState extends State<ChatPage> {
     if (message.text.isNotEmpty) {
       firestore
           .collection("chats")
-          .doc(widget.snapshot['uid'])
+          .doc(chatId)
           .collection("messages")
           .doc(timeStamp.toString())
-          .set({"message": message.text, "time": timeStamp});
+          .set({"message": message.text.trim(), "time": timeStamp});
       message.clear();
 
     }
