@@ -16,14 +16,12 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final auth = FirebaseAuth.instance;
   final firestore = FirebaseFirestore.instance;
-  User? user = FirebaseAuth.instance.currentUser;
   final signupKey = GlobalKey<FormState>();
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   bool isLoading = false;
   bool showPassword = false;
@@ -45,36 +43,45 @@ class _SignupPageState extends State<SignupPage> {
           key: signupKey,
           child: Column(
             children: [
-              SizedBox(height: 50),
+              SizedBox(height: 60),
               Text(
-                "Please signup to continue",
-                style: TextStyle(
-                    color: Colors.pink,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold),
+                "Welcome to chat app",
+                style: TextStyle(fontSize: 22),
               ),
-              SizedBox(height: 50),
 
               Padding(
                 padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  "assets/signup.jpg",
+                  height: 250,
+                ),
+              ),
+              //name
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 25,
+                ),
                 child: TextFormField(
                   controller: nameController,
+                  validator: validateName,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
-                      labelText: "Name",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      )),
+                    labelText: "Name",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
                 ),
               ),
               //email
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25,),
                 child: TextFormField(
                   controller: emailController,
-                  validator: (mail) {
-
-                  },
-                  autovalidateMode: AutovalidateMode.always,
+                  validator:validateMail,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     labelText: "Email",
                     border: OutlineInputBorder(
@@ -86,7 +93,8 @@ class _SignupPageState extends State<SignupPage> {
 
               //password
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25),
                 child: TextFormField(
                   controller: passwordController, //
                   obscureText: showPassword,
@@ -112,7 +120,8 @@ class _SignupPageState extends State<SignupPage> {
 
               //confirmPassword
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25),
                 child: TextFormField(
                   controller: confirmPasswordController,
                   obscureText: showPassword,
@@ -135,27 +144,27 @@ class _SignupPageState extends State<SignupPage> {
                       )),
                 ),
               ),
-              SizedBox(
-                height: 50,
+              //button
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20.0, horizontal: 25),
+                child: SizedBox(
+                  height: 55,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              signup();
+                            },
+                      child: Text(
+                        isLoading ? "signing up" : "signup",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      )),
+                ),
               ),
-              SizedBox(
-                height: 50,
-                width: 300,
-                child: ElevatedButton(
-                    onPressed: isLoading
-                        ? null
-                        : () {
-                            signup();
-                          },
-                    child: Text(
-                      isLoading ? "signing up" : "signup",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    )),
-              ),
-              SizedBox(
-                height: 50,
-              ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -177,52 +186,63 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  String? validateMail(String mail) {
-    if (mail.isEmpty && mail == null) {
-      return "please enter email";
+  String? validateName(String? name){
+    if (name == null || name.isEmpty) {
+      return "enter valid name";
+    } else {
+      return null;
+    }
+  }
+
+  String? validateMail(String? mail) {
+    if (mail == null || mail.isEmpty) {
+      return "enter email";
     } else if (RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(mail)) {
-      return "please enter valid mail";
+      return "enter valid mail";
+    }
+    else{return null;}
+  }
+
+  void validateForm() {
+    signupKey.currentState?.save();
+    if (!signupKey.currentState!.validate()) {
+      return;
     }
   }
 
   Future<void> signup() async {
+    final navigator = Navigator.of(context);
+    validateForm();
     try {
-      if (!signupKey.currentState!.validate()) {
-        return;
-      }
-
       setState(() {
         isLoading = true;
       });
 
-      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+      final userCredential = await auth.createUserWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-      user = userCredential.user;
+      User? user = userCredential.user;
       debugPrint(user!.uid);
       // after signup user will navigate to new screen
-      if (user != null) {
-        // after signup we save user data in firestore database
-
-        await firestore.collection("users").doc(user!.uid).set({
-          "uid": user!.uid,
-          "name": nameController.text,
-          "email": emailController.text,
-        });
-      }
+      await firestore.collection("users").doc(user.uid).set({
+        "uid": user.uid,
+        "name": nameController.text,
+        "email": emailController.text,
+      });
       setState(() {
-        isLoading = false; //these
+        isLoading = false;
       });
 
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const HomePage()));
+      navigator.pushReplacement(MaterialPageRoute(builder: (context) => const HomePage()));
     } on FirebaseAuthException catch (e) {
       debugPrint(e.message);
+      setState(() {
+        isLoading = false;
+      });
       // display snackbar here
-      SnackBar snackBar = SnackBar(content: Text(e.message?? "Something went wrong"));
+      final snackBar = SnackBar(content: Text(e.message ?? "Something went wrong"));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-      }
     }
   }
+}
