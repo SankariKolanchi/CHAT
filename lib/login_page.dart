@@ -40,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: Colors.indigo
               ),
             ),
             SizedBox(height: 50),
@@ -61,17 +62,19 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
-                controller: passwordController,
+                controller: passwordController, //
                 obscureText: showPassword,
                 decoration: InputDecoration(
-                  labelText: "Password",
-                  suffix: IconButton(onPressed: () {
-                    setState(() {
-                      showPassword = !showPassword;
-                    });
-                  },
-                      icon: Icon(showPassword ? Icons.visibility : Icons
-                          .visibility_off) //next ch
+                  labelText: "Password", //
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        showPassword = !showPassword;
+                      });
+                    },
+                    icon: Icon(
+                      showPassword ? Icons.visibility : Icons.visibility_off,
+                    ),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
@@ -79,6 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
+
             // forgot password
             SizedBox(
               height: 20,
@@ -101,7 +105,6 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: isLoading
                     ? null
                     : () {
-                  /// here you have to call login funcction :D s
                   login();
                 },
                 child: Text(isLoading ? "logging" : "Login"),

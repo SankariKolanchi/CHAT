@@ -55,29 +55,17 @@ class _HomePageState extends State<HomePage> {
                               Navigator.push(context, MaterialPageRoute(builder: (context)=> ProfilePage(snapshot: snapshot.data!.docs[index]
                               )));
                             },
-
                             child: Text((snapshot.data!.docs[index]['name'][0]).toString().toUpperCase())),
                       ),
                       title: Text(snapshot.data!.docs[index]['name']
                       ),
-
-                      subtitle: Text(snapshot.data!.docs[index]['email']),
+                        subtitle: Text(snapshot.data!.docs[index]['email']),
                     );
                   });
             }
             else{
               return Text("no data found");
             }
-
-
-
-
-
-
-
-
-
-        
       }),
       
       floatingActionButton: FloatingActionButton(onPressed: (){
