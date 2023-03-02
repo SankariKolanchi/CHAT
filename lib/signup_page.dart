@@ -249,13 +249,10 @@ class _SignupPageState extends State<SignupPage> {
         password: passwordController.text,
       );
       User? user = userCredential.user;
+      //save user data to firestore database
       debugPrint(user!.uid);
       // after signup user will navigate to new screen
-      await firestore.collection("users").doc(user.uid).set({
-        "uid": user.uid,
-        "name": nameController.text,
-        "email": emailController.text,
-      });
+
       setState(() {
         isLoading = false;
       });
@@ -270,5 +267,16 @@ class _SignupPageState extends State<SignupPage> {
       final snackBar = SnackBar(content: Text(e.message ?? "Something went wrong"));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
+  }
+
+  Future<void> saveData(User user)async{
+    await firestore.collection("users").doc(user.uid).set({
+      "uid": user.uid,
+      "name": nameController.text,
+      "email": emailController.text,
+      "photoUrl": "",
+      "active":false,
+      "lastSeen": DateTime.now(),
+    });
   }
 }

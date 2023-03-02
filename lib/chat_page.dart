@@ -37,7 +37,7 @@ class _ChatPageState extends State<ChatPage> {
                   .collection("chats")
                   .doc(chatId)
                   .collection("messages")
-                  .orderBy('time', descending: true)
+                  .orderBy('time', descending: false)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
